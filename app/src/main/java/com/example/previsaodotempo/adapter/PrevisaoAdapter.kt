@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.TextView
 
+/*
 class PrevisaoAdapter (private val context: Context, private val dataSource: ArrayList<Previsao>): BaseAdapter(){
 
     @SuppressLint("ViewHolder")
@@ -17,4 +18,4 @@ class PrevisaoAdapter (private val context: Context, private val dataSource: Arr
 
         return rowView)
     }
-}
+}*/

@@ -1,47 +1,55 @@
 package com.example.previsaodotempo
 
-import android.app.ProgressDialog
-import androidx.appcompat.app.AppCompatActivity
+import android.graphics.drawable.AnimationDrawable
 import android.os.Bundle
 import android.util.Log
-import java.lang.ref.ReferenceQueue
-import java.util.*
-import kotlin.collections.ArrayList
+import android.view.View
+import androidx.appcompat.app.AppCompatActivity
+import com.android.volley.Request
+import com.android.volley.RequestQueue
+import com.android.volley.toolbox.StringRequest
+import com.android.volley.toolbox.Volley
+import com.example.previsaodotempo.model.Weather
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.node.ObjectNode
+import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
-    val PERMISSION_ID = 42
-    var lat: Double = 0.0
-    var long: Double = 0.0
-    var listaPrevisoes = ArrayList<Previsao>()
-    lateinit var dialog: ProgressDialog
-    lateinit var url: String
-
-    lateinit var mFusedLocationClient: FusedLocationProviderClient
+    val url: String = "https://api.hgbrasil.com/weather?key=a80da7dd&city_name=Artur%20Nogueira,SP"
+    lateinit var queue: RequestQueue
+    companion object {
+        val TAG = this.javaClass.simpleName
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        Gradient Effect
-
-                val dialog: ProgressDialog(this)
-        dialog.setTitle("Aguarde...")
-        dialog.setMessage("Obtendo dados da HGBrasil...")
-        dialog.show()
+        //<editor-fold desc="Gradiente Effect" defaultstate="collapsed">
+        window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN
+//        val animDrawable = root_layout.background as AnimationDrawable
+//        animDrawable.setEnterFadeDuration(10)
+//        animDrawable.setExitFadeDuration(5000)
+//        animDrawable.start()
+        //</editor-fold>
 
         queue = Volley.newRequestQueue(this)
 
-        val urlRequest = "https://api.hgbrasil.com/weather?key=a80da7dd&city_name=Artur%20Nogueira,SP"
+        var requisicaoWeb = StringRequest(Request.Method.GET, url, { resultado ->
+            Log.i(TAG, "RESULTADO: [$resultado]")
+            val mapper = ObjectMapper();
+            val node: ObjectNode = mapper.readValue(resultado, ObjectNode::class.java)
+            val jsonResult = node.get("results").toString()
 
-        val request = StringRequest(Request.Method.GET, urlRequest, { result ->
-            Log.i("RESPONSE: ", result.toString())
-            dialog.dismiss()
-        }, {error ->
-            Log.e("ERROR: ", error!!.localizedMessage)
+            val weather = mapper.readValue<Weather>(jsonResult, Weather::class.java)
+
+            Log.d(TAG, weather.toString())
+
+        }, { erro ->
+            Log.e(TAG, "ERRO: [${erro.localizedMessage}]")
         })
 
-        queue.add(request)
-
+        queue.add(requisicaoWeb)
     }
 }
